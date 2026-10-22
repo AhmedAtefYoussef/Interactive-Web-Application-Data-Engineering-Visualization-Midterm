@@ -1,6 +1,8 @@
-# Data Engineering & Visualization: Study Companion
+# Interactive Web Application: Data Engineering & Visualization Midterm
 
 An interactive study companion for **Data Engineering & Visualization**: six lectures and five labs turned into notes you can play with, built for midterm preparation.
+
+**Live app:** https://ahmedatefyoussef.github.io/Interactive-Web-Application-Data-Engineering-Visualization-Midterm/
 
 ## What's inside
 
