@@ -17,6 +17,12 @@
         ],
         "createdAt": "2026-10-22T17:51:38.554Z",
         "reason": "agent decision: no auto-scrolling content exists; the only infinite translateX animation is the loading-skeleton shimmer on not-yet-mounted simulators, a standard loading state that stops once they mount"
+      },
+      {
+        "rule": "overused-font",
+        "value": "arial",
+        "createdAt": "2026-10-22T18:36:36.704Z",
+        "reason": "agent decision: Arial is used only in the deliberately bad 'Before' dashboard demo (Lab 5 makeover) to imitate a default, unstyled report; the app's own type is Geist"
       }
     ]
   }
