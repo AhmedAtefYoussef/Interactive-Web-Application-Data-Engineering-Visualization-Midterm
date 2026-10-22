@@ -151,6 +151,28 @@ button.chip:active { transform: scale(.95); }
   .mcard::before { display: none; }
 }
 
+/* Readable charts on phones: wide charts keep a minimum width and swipe sideways.
+   Edge shadows (background-attachment: local vs scroll) show when there is more to see. */
+.viz-scroll { max-width: 100%; }
+@media (max-width: 700px) {
+  .viz-scroll {
+    overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin: 0 -4px; padding: 0 4px;
+    background:
+      linear-gradient(to right, var(--surface) 40%, transparent) left / 28px 100% no-repeat local,
+      linear-gradient(to left, var(--surface) 40%, transparent) right / 28px 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, rgb(10 12 16 / .16), transparent) left / 12px 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, rgb(10 12 16 / .16), transparent) right / 12px 100% no-repeat scroll;
+  }
+  .viz-scroll::-webkit-scrollbar { display: none; }
+  .viz-scroll > .viz { min-width: var(--minw, 0); }
+  .viz text { font-size: 12px; }
+  .viz-scroll .viz text { font-size: 12.5px; }
+  /* the redesigned dashboard stacks its tiles instead of squeezing them */
+  .dash-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .dash-tile svg { max-width: 100%; height: auto; }
+  .empty div { flex-wrap: wrap; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bench[data-widget]:not([data-mounted])::after { animation: none; }
   .reveal { opacity: 1; transform: none; }

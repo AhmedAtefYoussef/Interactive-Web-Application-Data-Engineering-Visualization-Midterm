@@ -213,7 +213,7 @@ p { margin: 0; }
 .seg button:hover { color: var(--ink); }
 .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); font-weight: 500; }
 
-.chip { text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; color: var(--ink-2); transition: all .2s var(--ease); }
+.chip { text-decoration: none; max-width: 100%; overflow-wrap: anywhere; display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; color: var(--ink-2); transition: all .2s var(--ease); }
 button.chip:hover { border-color: var(--line-strong); }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .chip.accent { background: var(--accent-soft); border-color: transparent; color: var(--accent); font-weight: 500; }

@@ -1,7 +1,7 @@
 // Offline support and instant repeat visits.
 // Strategy: serve from cache immediately, refresh the cache in the background
 // (stale-while-revalidate). A new deploy shows up on the next visit.
-const CACHE = 'devstudy-v1';
+const CACHE = 'devstudy-v2';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'icon.svg',
   'css/styles.css', 'css/quiz.css', 'css/motion.css',

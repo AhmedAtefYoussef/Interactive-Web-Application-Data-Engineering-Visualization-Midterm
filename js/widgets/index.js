@@ -16,10 +16,35 @@ function mountOne(el, cleanups) {
   try {
     const c = fn(el);
     if (typeof c === 'function') cleanups.push(c);
+    fitCharts(el);
+    // widgets redraw their markup freely; re-apply the fit to whatever they draw next
+    let queued = false;
+    const mo = new MutationObserver(() => {
+      if (queued) return;
+      queued = true;
+      queueMicrotask(() => { queued = false; fitCharts(el); });
+    });
+    mo.observe(el, { childList: true, subtree: true });
+    cleanups.push(() => mo.disconnect());
   } catch (err) {
     console.error(err);
     el.innerHTML = `<div class="bench-body muted">This simulator failed to load. The notes around it still apply.</div>`;
   }
+}
+
+// Wide charts (drawn on a ~720-unit canvas) would shrink their labels below a readable size
+// on a phone. Each one gets a swipeable frame and a minimum width (set in CSS for narrow
+// screens) so labels stay at least ~10.5 px.
+function fitCharts(el) {
+  el.querySelectorAll('svg.viz').forEach(svg => {
+    const vbw = svg.viewBox?.baseVal?.width || 0;
+    if (vbw < 440 || svg.parentElement.classList.contains('viz-scroll')) return;
+    svg.style.setProperty('--minw', `${Math.round(vbw * 0.86)}px`);
+    const wrap = document.createElement('div');
+    wrap.className = 'viz-scroll';
+    svg.replaceWith(wrap);
+    wrap.appendChild(svg);
+  });
 }
 
 // Sliders fire "input" far more often than the screen refreshes. Hold back all but the

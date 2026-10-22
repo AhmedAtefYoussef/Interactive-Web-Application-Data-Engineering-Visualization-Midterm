@@ -259,7 +259,7 @@ min       17.00       1.00
 25%       28.00      40.00
 50%       37.00      40.00
 75%       48.00      45.00
-max       90.00      99.00`, 'Age: mean 38.6 > median 37, a mild right skew. Hours: half the people work exactly 40.'],
+max       90.00      99.00`, 'Age: mean 38.6 > median 37, a mild right skew. Hours: 46.7% of people report exactly 40, which is why Q1 and the median are both 40.'],
   isna: ['df.isna().sum()', 'age 0\nworkclass 0\noccupation 0\nnative-country 0\n... every column 0', 'Zero missing values? Suspicious. Check the unique values.'],
   q: ['(df == "?").sum()', 'workclass        2799\noccupation       2809\nnative-country    857\n(all other columns 0)', 'Missing values were hiding as "?". 6,465 cells in three columns.'],
   target: ['df["income"].value_counts()', '<=50K    37155\n>50K     11687', 'Imbalanced target: about 76% earn ≤50K. A model that always says "≤50K" is already 76% accurate.'],
@@ -313,7 +313,7 @@ export function fillna(el) {
       <div class="tbl-wrap"><table class="tbl"><tr><th>before</th>${SER.map(v => cell(v)).join('')}</tr>
         <tr><th>after</th>${out.map(o => cell(o.v, o.f ? 'cell-fix' : '')).join('')}${Array(SER.length - out.length).fill('<td></td>').join('')}</tr></table></div>
       <pre class="code">${esc(CODE[m])}</pre>
-      <div class="explain">${{ dropna: '4 of 8 rows are gone. Fine for a few missing rows, destructive when nulls are common (6% of all cells in the retail dataset).', zero: 'Zero is a real price. Filling with 0 creates free products that never existed.', ffill: 'Forward fill copies the <strong>most recent</strong> value forward. Sensible for ordered data like stock prices.', bfill: 'Backward fill copies the <strong>next</strong> known value backward. The last NaN stays NaN: there is nothing after it.', mean: 'Mean imputation: every gap gets the same average. Keeps the mean, shrinks the variance.', median: 'Median imputation: same idea, robust to outliers and skew.' }[m]}</div>
+      <div class="explain">${{ dropna: '4 of 8 rows are gone. Fine for a few missing rows, destructive when nulls are spread out: in the retail dataset only 5.2% of cells are null, yet dropna() removes 39.7% of rows.', zero: 'Zero is a real price. Filling with 0 creates free products that never existed.', ffill: 'Forward fill copies the <strong>most recent</strong> value forward. Sensible for ordered data like stock prices.', bfill: 'Backward fill copies the <strong>next</strong> known value backward. The last NaN stays NaN: there is nothing after it.', mean: 'Mean imputation: every gap gets the same average. Keeps the mean, shrinks the variance.', median: 'Median imputation: same idea, robust to outliers and skew.' }[m]}</div>
     </div>`;
   };
   on(el, '[data-v]', 'click', (e, b) => { m = b.dataset.v; render(); });

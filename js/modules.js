@@ -120,11 +120,12 @@ export const MODULES = [
         <div class="tbl-wrap" style="margin:16px 0"><table class="tbl">
           <tr><th>Level</th><th>Family</th><th>Named classes</th><th>Order</th><th>Known differences</th><th>True zero</th><th>Example</th></tr>
           <tr><td><strong>Nominal</strong></td><td>Categorical</td><td>Yes</td><td>No</td><td>No</td><td>No</td><td>Gender, marital status</td></tr>
-          <tr><td><strong>Ordinal</strong></td><td>Categorical</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>"How happy are you with your order?"</td></tr>
+          <tr><td><strong>Ordinal</strong></td><td>Categorical</td><td>Yes, and ranked</td><td>Yes</td><td>No</td><td>No</td><td>"How happy are you with your order?"</td></tr>
           <tr><td><strong>Interval</strong></td><td>Numerical</td><td>n/a</td><td>Yes</td><td>Yes</td><td>No</td><td>Satisfaction 1 to 7, temperature in °C</td></tr>
           <tr><td><strong>Ratio</strong></td><td>Numerical</td><td>n/a</td><td>Yes</td><td>Yes</td><td>Yes</td><td>4 g is twice as heavy as 2 g</td></tr>
         </table></div>
         ${W('datatypes')}
+        ${K('Wording on the slide: ordinal values are described as "values do not have names, ordered". Read it as <b>the values are not just names</b>: their position in an order carries the meaning (unhappy &lt; neutral &lt; happy), but the distances between them are not measured.')}
         ${T('The test for <b>ratio</b> is "can I say twice as much?". 20°C is not twice as hot as 10°C (0°C is not "no temperature"), so Celsius is interval. 4 kg really is twice 2 kg, so weight is ratio.')}`
       },
       {
@@ -439,7 +440,7 @@ df[<span class="s">"num_tags"</span>] = df[<span class="s">"tags"</span>].apply(
       {
         id: 'nulls', title: 'Missing values in pandas',
         body: `<div class="prose"><p>The default null is <code>NaN</code>. If a dataset uses another symbol (like "?"), convert it first with the <code>na_values</code> argument of <code>read_csv</code>. The tools: <code>isnull()</code>, <code>notnull()</code>, <code>dropna()</code> (with <code>how="any"</code> or <code>how="all"</code>) and <code>fillna()</code> with a single value or a dict per column.</p>
-        <p>In <code>retail_transactions.csv</code> (12,575 rows) about 6% of all cells are null, concentrated in item (1,213), price_per_unit (609), quantity (604), total_spent (604) and discount_applied (4,199). Dropping every row with a null would throw away a large share of the data, so the lab fills instead.</p></div>
+        <p>In <code>retail_transactions.csv</code> (12,575 rows) <strong>5.2% of all cells</strong> are null (7,229 of 138,325; the notebook computes 5.226 and its text rounds this to "about 6 percent"). They sit in item (1,213), price_per_unit (609), quantity (604), total_spent (604) and discount_applied (4,199). Because they are spread across columns, <code>dropna()</code> would delete <strong>4,996 rows (39.7%)</strong>, so the lab fills instead.</p></div>
         ${W('fillna')}
         ${T('<b>ffill</b> copies the most recent non-missing value forward; <b>bfill</b> copies the next non-missing value backward. Mixing them up is a common exam slip.')}`
       },
@@ -447,6 +448,7 @@ df[<span class="s">"num_tags"</span>] = df[<span class="s">"tags"</span>].apply(
         id: 'outliers', title: 'Outliers: Z-score and IQR',
         body: `<div class="prose"><p>An outlier is an observation far from the others. Causes: measurement or input error, data corruption, or a true rare observation. There is no universal definition, so a domain expert decides. Outliers can be <strong>univariate</strong> (one variable) or <strong>multivariate</strong> (unusual in n dimensions).</p>
         <p>The lab uses <code>placement.csv</code>: <code>cgpa</code> is roughly normal, <code>placement_exam_marks</code> is right-skewed. So it applies <strong>Z-score to cgpa</strong> and <strong>IQR to the skewed marks</strong>. Move the thresholds on the real 1,000 students:</p></div>
+        ${T('Read the lab\'s IQR cell carefully. It filters <b>placement_exam_marks</b> (15 rows go) and then filters <b>cgpa</b> again with IQR (8 more), so 977 rows remain. Its last lines print <code>len(df) - len(IQR_df)</code>, but <code>df</code> is still the 12,575-row retail table, so it prints 11,598, and <code>print(iqr)</code> shows 0.82, the <b>cgpa</b> IQR from the second filter. Also note the variable named <code>Q2</code> holds the 0.75 quantile, i.e. Q3.')}
         ${W('outliers')}
         ${K('Z-score suits <b>normal</b> data (flag |z| &gt; 3). IQR suits <b>skewed</b> data (flag below Q1 − 1.5·IQR or above Q3 + 1.5·IQR). A flagged point is a candidate, not an automatic deletion: in retail data, a huge total_spent may be a real bulk purchase.')}`
       },

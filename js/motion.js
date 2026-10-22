@@ -126,9 +126,17 @@ export function topbarShadow() {
 // Page change: the new page fades up while sidebar and topbar stay put.
 export function pageTransition(update) {
   if (!canTransition()) { update(false); return; }
-  const t = document.startViewTransition(() => update(true));
+  let ran = false;
+  const t = document.startViewTransition(() => { ran = true; update(true); });
   // a newer navigation can skip this one; that is expected, not an error
   [t.ready, t.finished, t.updateCallbackDone].forEach(p => p?.catch(() => {}));
+  guard(t, () => ran);
+}
+
+// If the browser never gets a frame to capture (e.g. a throttled or hidden view), skipping the
+// transition still runs the update, so content never waits on an animation.
+function guard(t, ran) {
+  setTimeout(() => { if (!ran()) t.skipTransition?.(); }, 400);
 }
 
 // Theme change: the new theme grows as a circle from the toggle button.
@@ -138,7 +146,9 @@ export function themeTransition(btn, apply) {
   const R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
   const html = document.documentElement;
   html.dataset.vt = 'theme';
-  const t = document.startViewTransition(apply);
+  let ran = false;
+  const t = document.startViewTransition(() => { ran = true; apply(); });
+  guard(t, () => ran);
   t.ready.then(() => html.animate(
     { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${R}px at ${x}px ${y}px)`] },
     { duration: 700, easing: 'cubic-bezier(.16, 1, .3, 1)', pseudoElement: '::view-transition-new(root)' },
