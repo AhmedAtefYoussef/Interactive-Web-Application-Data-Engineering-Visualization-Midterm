@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Signal · Data Engineering & Visualization</title>
+  <meta name="description" content="An interactive study companion for Data Engineering & Visualization: lectures 1-6 and labs 1-5, with simulators, quizzes and flashcards.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2316181d'/%3E%3Cpath d='M5 21h5l3-9 4 13 3-8h7' fill='none' stroke='%23ff8a3d' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    try { const t = localStorage.getItem('signal-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#view">Skip to content</a>
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-label="Course navigation">
+      <a class="brand" href="#/">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M5 21h5l3-9 4 13 3-8h7"/></svg>
+        </span>
+        <span class="brand-text"><strong>Signal</strong><small>DE &amp; Viz midterm</small></span>
+      </a>
+      <nav id="nav"></nav>
+      <div class="side-progress" id="sideProgress"></div>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open navigation"><i class="ph ph-list"></i></button>
+        <div class="crumbs" id="crumbs"></div>
+        <div class="top-actions">
+          <button class="search-trigger" id="searchBtn" aria-label="Search terms">
+            <i class="ph ph-magnifying-glass"></i><span>Search terms</span><kbd>/</kbd>
+          </button>
+          <button class="icon-btn" id="themeBtn" aria-label="Toggle color theme"><i class="ph ph-moon"></i></button>
+        </div>
+      </header>
+      <main id="view" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <dialog class="search-dialog" id="searchDialog" aria-label="Search glossary">
+    <div class="search-box">
+      <i class="ph ph-magnifying-glass"></i>
+      <input id="searchInput" type="search" placeholder="Search a term, e.g. median, drill through, Prägnanz" autocomplete="off" aria-label="Search">
+      <kbd>Esc</kbd>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
