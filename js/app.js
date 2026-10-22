@@ -3,7 +3,7 @@ import { QUESTIONS, GLOSSARY } from './bank.js';
 import { mountWidgets } from './widgets/index.js';
 import { getState, subscribe, toggleRead, isRead, moduleProgress, setLast, recordAnswer, rateCard, cardBox, resetAll } from './store.js';
 import { esc } from './viz.js';
-import { initBrand, placeIndicator, reveal, countUp, spotlight, topbarShadow, pageTransition, themeTransition, swapCard } from './motion.js';
+import { initBrand, placeIndicator, reveal, countUp, spotlight, topbarShadow, pageTransition, themeTransition, swapCard, pauseOffscreen } from './motion.js';
 import { quizSetup } from './quiz-setup.js';
 
 const view = document.getElementById('view');
@@ -213,7 +213,13 @@ function renderModule(id, secId) {
     entries.forEach(en => { if (en.isIntersecting) links.forEach(a => a.classList.toggle('active', a.dataset.sec === en.target.dataset.sec)); });
   }, { rootMargin: '-30% 0px -60% 0px' });
   view.querySelectorAll('.sec').forEach(s => spy.observe(s));
-  if (secId) requestAnimationFrame(() => document.getElementById('sec-' + secId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  if (secId) jumpToSection(secId);
+}
+function jumpToSection(secId) {
+  const target = document.getElementById('sec-' + secId);
+  if (!target) return;
+  cleanup.mountThrough?.(target);
+  requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }));
 }
 function onReadClick(e) {
   const b = e.target.closest('[data-read]'); if (!b) return;
@@ -372,7 +378,7 @@ const currentRoute = () => (location.hash.replace(/^#\/?/, '').split('?')[0] || 
 function go() {
   const r = currentRoute();
   if (view.dataset.mod && r[0] === 'm' && r[1] === view.dataset.mod && r[2]) { // section link inside the open module: just scroll
-    document.getElementById('sec-' + r[2])?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    jumpToSection(r[2]);
     return;
   }
   closeDrawer();
@@ -400,7 +406,7 @@ function route(viaTransition = false) {
   if (!viaTransition) { void view.offsetWidth; view.classList.add('view-enter'); }
   if (!(r[0] === 'm' && r[2])) window.scrollTo({ top: 0 });
   reveal(view);
-  if (!r.length) countUp(view);
+  if (!r.length) { countUp(view); cleanup = pauseOffscreen(view.querySelector('.course-map')); }
   const h1 = view.querySelector('h1'), name = 'Data Engineering & Visualization';
   document.title = h1 && r.length ? `${h1.textContent.replace(/\s+/g, ' ').trim()} · ${name}` : name;
 }
@@ -444,6 +450,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(
 initBrand();
 topbarShadow();
 spotlight(view);
+
+// Offline + instant repeat visits on the deployed site (skipped on localhost so edits show up)
+if ('serviceWorker' in navigator && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 
 // ---------------------------------------------------------------- search
 const dlg = document.getElementById('searchDialog'), sIn = document.getElementById('searchInput'), sOut = document.getElementById('searchResults');

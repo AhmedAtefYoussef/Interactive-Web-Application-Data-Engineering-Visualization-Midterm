@@ -123,7 +123,36 @@ button.chip:active { transform: scale(.95); }
 }
 @keyframes pageIn { from { opacity: 0; transform: translateY(12px); } }
 
+/* ================================================================
+   Performance
+   ================================================================ */
+
+/* Simulators mount just before they scroll into view; until then they hold their space
+   with a skeleton so nothing below them jumps. */
+.bench[data-widget]:not([data-mounted]) { min-height: 360px; position: relative; overflow: hidden; background: var(--surface); }
+.bench[data-widget]:not([data-mounted])::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--ink) 4%, transparent), transparent);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer { to { transform: translateX(100%); } }
+
+/* Looping decoration stops when it is not on screen. */
+.offscreen, .offscreen * { animation-play-state: paused !important; }
+
+/* Phones: blur behind moving content is the most expensive paint on mobile GPUs.
+   Swap it for near-opaque surfaces that look the same at a glance. */
+@media (max-width: 900px), (hover: none) {
+  .topbar { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--bg) 96%, transparent); }
+  .qs-start { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--surface); }
+  .scrim { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .search-dialog::backdrop { backdrop-filter: none; }
+  .sidebar { will-change: transform; }
+  .mcard::before { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .bench[data-widget]:not([data-mounted])::after { animation: none; }
   .reveal { opacity: 1; transform: none; }
   .reveal:not(.in) .meter > span { transform: none !important; }
   .brand-mark::after { display: none; }

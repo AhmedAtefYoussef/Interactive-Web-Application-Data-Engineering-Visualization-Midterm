@@ -34,6 +34,13 @@ Then open http://localhost:8000.
 - Motion layer (`css/motion.css`, `js/motion.js`): animated chart logo, page and circular theme transitions (View Transitions API), scroll reveals, charts that draw in on first view, a sliding nav indicator, a staggered mobile drawer, and answer feedback.
 - Exam practice setup (`js/quiz-setup.js`): topic tiles with per-topic accuracy, a keyboard-accessible length dropdown and a weak-spots switch.
 
+## Performance
+
+- Simulators mount only as they approach the viewport (with a skeleton holding their space), and slider drags redraw at most once per frame.
+- All JS modules are preloaded in parallel; fonts and icons load without blocking the first paint.
+- On phones, backdrop blurs are replaced with solid surfaces, and looping animations pause when off screen.
+- A service worker caches the app, so repeat visits open instantly and the app works offline. It can be installed to a phone's home screen.
+
 ## Structure
 
 ```

@@ -83,6 +83,14 @@ function introBench(b) {
   setTimeout(() => b.classList.remove('intro'), 1800);
 }
 
+// Pause looping animations (the course-map data flow) while they are off screen.
+export function pauseOffscreen(el) {
+  if (!el || !('IntersectionObserver' in window)) return () => {};
+  const o = new IntersectionObserver(([e]) => el.classList.toggle('offscreen', !e.isIntersecting));
+  o.observe(el);
+  return () => o.disconnect();
+}
+
 // Home stats count up from zero.
 export function countUp(root) {
   if (reduced()) return;
@@ -118,7 +126,9 @@ export function topbarShadow() {
 // Page change: the new page fades up while sidebar and topbar stay put.
 export function pageTransition(update) {
   if (!canTransition()) { update(false); return; }
-  document.startViewTransition(() => update(true));
+  const t = document.startViewTransition(() => update(true));
+  // a newer navigation can skip this one; that is expected, not an error
+  [t.ready, t.finished, t.updateCallbackDone].forEach(p => p?.catch(() => {}));
 }
 
 // Theme change: the new theme grows as a circle from the toggle button.
@@ -133,7 +143,8 @@ export function themeTransition(btn, apply) {
     { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${R}px at ${x}px ${y}px)`] },
     { duration: 700, easing: 'cubic-bezier(.16, 1, .3, 1)', pseudoElement: '::view-transition-new(root)' },
   )).catch(() => {});
-  t.finished.finally(() => delete html.dataset.vt);
+  t.updateCallbackDone?.catch(() => {});
+  t.finished.catch(() => {}).finally(() => delete html.dataset.vt);
 }
 
 // Flashcard rating: the card leaves toward the side you chose, the next one slides in.
