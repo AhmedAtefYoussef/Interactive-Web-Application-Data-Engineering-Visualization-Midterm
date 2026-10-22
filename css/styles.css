@@ -400,9 +400,9 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-viz)
 .q-opt.incorrect { border-color: var(--bad); background: var(--bad-soft); }
 .q-opt.incorrect .letter { background: var(--bad); color: #fff; }
 .q-opt[disabled] { cursor: default; }
-.q-why { margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: var(--surface-2); font-size: 14px; color: var(--ink-2); border-left: 3px solid var(--line-strong); animation: viewIn .4s var(--ease); }
-.q-why.good { border-left-color: var(--good); }
-.q-why.bad { border-left-color: var(--bad); }
+.q-why { margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: var(--surface-2); font-size: 14px; color: var(--ink-2); border: 1px solid var(--line); animation: viewIn .4s var(--ease); }
+.q-why.good { background: var(--good-soft); border-color: color-mix(in srgb, var(--good) 30%, transparent); }
+.q-why.bad { background: var(--bad-soft); border-color: color-mix(in srgb, var(--bad) 30%, transparent); }
 
 .quiz-shell { max-width: 760px; }
 .quiz-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
