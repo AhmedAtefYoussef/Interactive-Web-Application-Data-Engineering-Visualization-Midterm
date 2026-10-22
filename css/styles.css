@@ -232,7 +232,23 @@ input[type="text"], input[type="number"], input[type="search"], select, textarea
   height: 38px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
 }
 textarea { height: auto; padding: 10px; }
-input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-viz); outline-offset: 0; border-color: transparent; }
+input[type="text"]:focus, input[type="number"]:focus, input[type="search"]:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent-viz); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-viz) 22%, transparent); }
+
+/* Focus rings are for keyboard users only. Mouse and touch interaction never draws a box;
+   keyboard focus is shown in a way that fits each control instead of a generic rectangle. */
+html { -webkit-tap-highlight-color: transparent; }
+:focus:not(:focus-visible) { outline: none; }
+input[type="range"]:focus, input[type="checkbox"]:focus { outline: none; }
+input[type="range"]::-webkit-slider-thumb { transition: transform .15s, box-shadow .2s; }
+input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent-viz) 28%, transparent); }
+input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent-viz) 28%, transparent); }
+input[type="checkbox"]:focus-visible { outline: 2px solid var(--accent-viz); outline-offset: 2px; }
+svg :focus, svg :focus-visible { outline: none; }
+.map-node:focus-visible > rect:first-of-type, .map-node:focus-visible > circle:first-of-type { stroke: var(--accent-viz); stroke-width: 2.5; }
+.map-node rect, .map-node circle { transition: fill .25s, stroke .25s, stroke-width .2s; }
+.fc:focus-visible { outline: none; }
+.fc:focus-visible .fc-face { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-viz) 35%, transparent), var(--shadow-lift); }
+.tile:focus-visible, .dd-btn:focus-visible, .switch:focus-visible, .q-opt:focus-visible, .sort-item button:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-viz) 35%, transparent); }
 
 /* ---------- Home ---------- */
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 40px; align-items: center; padding: 8px 0 40px; }
