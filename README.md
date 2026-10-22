@@ -1,4 +1,4 @@
-# Signal
+# Data Engineering & Visualization: Study Companion
 
 An interactive study companion for **Data Engineering & Visualization**: six lectures and five labs turned into notes you can play with, built for midterm preparation.
 
@@ -29,6 +29,8 @@ Then open http://localhost:8000.
 - The visual system follows the course's own Lab 5 rule: grey carries context, one orange accent carries the point.
 - Light and dark themes, keyboard shortcuts (`/` search, `1-4` answer, `Space` flip a card), and `prefers-reduced-motion` support.
 - Every animation has a job: it shows a state change, a data flow, or feedback on an answer.
+- Motion layer (`css/motion.css`, `js/motion.js`): animated chart logo, page and circular theme transitions (View Transitions API), scroll reveals, charts that draw in on first view, a sliding nav indicator, a staggered mobile drawer, and answer feedback.
+- Exam practice setup (`js/quiz-setup.js`): topic tiles with per-topic accuracy, a keyboard-accessible length dropdown and a weak-spots switch.
 
 ## Structure
 

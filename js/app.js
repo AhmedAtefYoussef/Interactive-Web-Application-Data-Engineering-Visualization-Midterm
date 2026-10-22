@@ -3,6 +3,8 @@ import { QUESTIONS, GLOSSARY } from './bank.js';
 import { mountWidgets } from './widgets/index.js';
 import { getState, subscribe, toggleRead, isRead, moduleProgress, setLast, recordAnswer, rateCard, cardBox, resetAll } from './store.js';
 import { esc } from './viz.js';
+import { initBrand, placeIndicator, reveal, countUp, spotlight, topbarShadow, pageTransition, themeTransition, swapCard } from './motion.js';
+import { quizSetup } from './quiz-setup.js';
 
 const view = document.getElementById('view');
 const nav = document.getElementById('nav');
@@ -57,6 +59,11 @@ function renderNav(route) {
     </div>`;
   const read = Object.keys(getState().read).length;
   document.getElementById('sideProgress').innerHTML = `<div>Sections understood <strong>${read}/${totalSections}</strong></div><div class="meter"><span style="transform:scaleX(${read / totalSections})"></span></div>`;
+  // stagger order for the mobile drawer's entrance
+  const items = nav.querySelectorAll('.nav-label, .nav-link');
+  items.forEach((el, i) => el.style.setProperty('--s', i + 1));
+  document.getElementById('sideProgress').style.setProperty('--s', items.length + 1);
+  placeIndicator(nav);
 }
 
 function crumbs(parts) {
@@ -75,7 +82,7 @@ function courseMap() {
     const [x, y] = pos[m.id], p = moduleProgress(m);
     const words = short[m.id].split(' ');
     const l1 = words.slice(0, Math.ceil(words.length / 2)).join(' '), l2 = words.slice(Math.ceil(words.length / 2)).join(' ');
-    return `<g class="map-node ${p === 1 ? 'done' : ''}" data-href="#/m/${m.id}" tabindex="0" role="link" aria-label="${m.num}: ${m.title}">
+    return `<g class="map-node ${p === 1 ? 'done' : ''}" style="--n:${MODULES.indexOf(m)}" data-href="#/m/${m.id}" tabindex="0" role="link" aria-label="${m.num}: ${m.title}">
       <rect x="${x}" y="${y}" width="${nw}" height="66" rx="10"/>
       <text class="n" x="${x + 9}" y="${y + 17}">${m.num}</text>
       <text x="${x + 9}" y="${y + 35}">${l1}</text><text x="${x + 9}" y="${y + 49}">${l2}</text>
@@ -222,26 +229,16 @@ function onReadClick(e) {
 function renderQuiz(params) {
   crumbs([['Overview', '#/'], ['Exam practice']]);
   const pre = params.get('m');
-  let sel = new Set(pre ? [pre] : MODULES.map(m => m.id)), count = pre ? 99 : 15, weakFirst = params.get('weak') === '1';
-  const setup = () => {
-    const pool = QUESTIONS.filter(q => sel.has(q.m));
-    view.innerHTML = `<div class="quiz-shell">
-      <h1>Exam practice</h1>
-      <p class="lede" style="margin-top:10px">Mixed multiple-choice questions written from the lectures and labs. Keys 1-4 answer, Enter moves on.</p>
-      <div class="quiz-filters">
-        <div class="field"><span class="lbl">Topics</span><div class="chips">
-          <button class="chip" data-all>All</button>${MODULES.map(m => `<button class="chip" data-m="${m.id}" aria-pressed="${sel.has(m.id)}">${m.num}</button>`).join('')}</div></div>
-        <div class="field"><span class="lbl">Length</span><div class="seg">${[[10, '10'], [15, '15'], [25, '25'], [99, 'All']].map(([v, l]) => `<button data-n="${v}" aria-pressed="${count === v}">${l}</button>`).join('')}</div></div>
-        <label class="chip" style="cursor:pointer;align-self:flex-start"><input type="checkbox" data-weak ${weakFirst ? 'checked' : ''} style="accent-color:var(--accent-viz)"> Weak spots first (missed and unseen questions)</label>
-      </div>
-      <button class="btn primary" data-start ${pool.length ? '' : 'disabled'}><i class="ph ph-play"></i>Start ${Math.min(count, pool.length)} questions</button>
-    </div>`;
-  };
+  const state = quizPrefs.state || { sel: new Set(MODULES.map(m => m.id)), count: 15, weakFirst: false };
+  if (pre) { state.sel = new Set([pre]); state.count = 99; }
+  if (params.get('weak') === '1') state.weakFirst = true;
+  quizPrefs.state = state; // remembered while the tab is open
   const run = () => {
+    if (setupCleanup) { setupCleanup(); setupCleanup = null; }
     const st = getState().quiz;
-    let pool = shuffle(QUESTIONS.filter(q => sel.has(q.m)), Date.now() % 100000);
-    if (weakFirst) pool.sort((a, b) => (st[a.id]?.last === true ? 1 : 0) - (st[b.id]?.last === true ? 1 : 0));
-    pool = pool.slice(0, count);
+    let pool = shuffle(QUESTIONS.filter(q => state.sel.has(q.m)), Date.now() % 100000);
+    if (state.weakFirst) pool.sort((a, b) => (st[a.id]?.last === true ? 1 : 0) - (st[b.id]?.last === true ? 1 : 0));
+    pool = pool.slice(0, state.count);
     let i = 0; const results = [];
     const show = () => {
       const q = pool[i];
@@ -276,16 +273,10 @@ function renderQuiz(params) {
     };
     show();
   };
-  setup();
-  view.onclick = e => {
-    const c = e.target.closest('[data-m]');
-    if (c) { sel.has(c.dataset.m) ? sel.delete(c.dataset.m) : sel.add(c.dataset.m); setup(); }
-    if (e.target.closest('[data-all]')) { sel = sel.size === MODULES.length ? new Set() : new Set(MODULES.map(m => m.id)); setup(); }
-    const n = e.target.closest('[data-n]'); if (n) { count = +n.dataset.n; setup(); }
-    if (e.target.closest('[data-start]')) run();
-  };
-  view.onchange = e => { if (e.target.matches('[data-weak]')) weakFirst = e.target.checked; };
+  let setupCleanup = quizSetup(view, state, id => quizStats([id]), run);
+  cleanup = () => setupCleanup && setupCleanup();
 }
+const quizPrefs = {};
 
 // ---------------------------------------------------------------- flashcards
 function renderCards(params) {
@@ -311,17 +302,24 @@ function renderCards(params) {
       : `<div class="empty" style="margin-top:20px;max-width:640px"><i class="ph ph-confetti"></i>Deck finished. <button class="btn sm" data-restart style="margin-left:8px">Go again</button></div>`}`;
   };
   build(); render();
+  let busy = false;
+  const rate = known => {
+    if (busy || !deck[i]) return;
+    busy = true;
+    rateCard(deck[i].id, known);
+    swapCard(view.querySelector('.fc-stage'), known, () => { i++; flipped = false; render(); busy = false; });
+  };
   view.onclick = e => {
     if (e.target.closest('a')) return;
     if (e.target.closest('[data-flip]')) { flipped = !flipped; view.querySelector('.fc').classList.toggle('flipped', flipped); }
-    const r = e.target.closest('[data-rate]'); if (r) { rateCard(deck[i].id, r.dataset.rate === '1'); i++; flipped = false; render(); }
+    const r = e.target.closest('[data-rate]'); if (r) rate(r.dataset.rate === '1');
     if (e.target.closest('[data-restart]')) { build(); render(); }
   };
   view.onchange = e => { if (e.target.matches('[data-f]')) { filter = e.target.value; build(); render(); } };
   keyHandler = e => {
     if (e.target.matches('input, textarea, select') || !deck[i]) return;
     if (e.key === ' ') { e.preventDefault(); flipped = !flipped; view.querySelector('.fc')?.classList.toggle('flipped', flipped); }
-    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { rateCard(deck[i].id, e.key === 'ArrowRight'); i++; flipped = false; render(); }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') rate(e.key === 'ArrowRight');
   };
 }
 
@@ -371,12 +369,18 @@ function renderNotFound() {
 let keyHandler = null;
 const currentRoute = () => (location.hash.replace(/^#\/?/, '').split('?')[0] || '').split('/').filter(Boolean);
 
-function route() {
-  const r = currentRoute(), params = new URLSearchParams(location.hash.split('?')[1] || '');
+function go() {
+  const r = currentRoute();
   if (view.dataset.mod && r[0] === 'm' && r[1] === view.dataset.mod && r[2]) { // section link inside the open module: just scroll
     document.getElementById('sec-' + r[2])?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
+  closeDrawer();
+  pageTransition(route);
+}
+
+function route(viaTransition = false) {
+  const r = currentRoute(), params = new URLSearchParams(location.hash.split('?')[1] || '');
   cleanup(); cleanup = () => {};
   spy?.disconnect(); spy = null;
   keyHandler = null;
@@ -392,14 +396,16 @@ function route() {
   else renderNotFound();
   renderNav(r);
   setLast(location.hash || '#/');
-  view.classList.remove('view-enter'); void view.offsetWidth; view.classList.add('view-enter');
+  view.classList.remove('view-enter');
+  if (!viaTransition) { void view.offsetWidth; view.classList.add('view-enter'); }
   if (!(r[0] === 'm' && r[2])) window.scrollTo({ top: 0 });
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('scrim').hidden = true;
-  const h1 = view.querySelector('h1'); document.title = `${h1 ? h1.textContent.replace(/\s+/g, ' ').trim() : 'Signal'} · Signal`;
+  reveal(view);
+  if (!r.length) countUp(view);
+  const h1 = view.querySelector('h1'), name = 'Data Engineering & Visualization';
+  document.title = h1 && r.length ? `${h1.textContent.replace(/\s+/g, ' ').trim()} · ${name}` : name;
 }
 
-window.addEventListener('hashchange', route);
+window.addEventListener('hashchange', go);
 document.addEventListener('keydown', e => {
   if (e.key === '/' && !e.target.matches('input, textarea, select')) { e.preventDefault(); openSearch(); return; }
   keyHandler && keyHandler(e);
@@ -412,15 +418,32 @@ function effectiveTheme() { return document.documentElement.dataset.theme || (ma
 function paintThemeIcon() { themeBtn.innerHTML = `<i class="ph ph-${effectiveTheme() === 'dark' ? 'sun' : 'moon'}"></i>`; }
 themeBtn.addEventListener('click', () => {
   const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
-  document.documentElement.dataset.theme = next;
-  try { localStorage.setItem('signal-theme', next); } catch { /* storage blocked */ }
-  paintThemeIcon();
+  themeTransition(themeBtn, () => {
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('signal-theme', next); } catch { /* storage blocked */ }
+    paintThemeIcon();
+  });
 });
 paintThemeIcon();
 
 // ---------------------------------------------------------------- mobile nav
-document.getElementById('menuBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.add('open'); document.getElementById('scrim').hidden = false; });
-document.getElementById('scrim').addEventListener('click', () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').hidden = true; });
+const sidebar = document.getElementById('sidebar'), scrim = document.getElementById('scrim'), menuBtn = document.getElementById('menuBtn');
+function openDrawer() {
+  sidebar.classList.add('open'); scrim.classList.add('on');
+  menuBtn.setAttribute('aria-expanded', 'true');
+}
+function closeDrawer() {
+  if (!sidebar.classList.contains('open')) return;
+  sidebar.classList.remove('open'); scrim.classList.remove('on');
+  menuBtn.setAttribute('aria-expanded', 'false');
+}
+menuBtn.addEventListener('click', openDrawer);
+scrim.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+initBrand();
+topbarShadow();
+spotlight(view);
 
 // ---------------------------------------------------------------- search
 const dlg = document.getElementById('searchDialog'), sIn = document.getElementById('searchInput'), sOut = document.getElementById('searchResults');

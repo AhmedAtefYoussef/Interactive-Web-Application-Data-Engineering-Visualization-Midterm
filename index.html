@@ -3,16 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Signal · Data Engineering & Visualization</title>
+  <title>Data Engineering & Visualization</title>
   <meta name="description" content="An interactive study companion for Data Engineering & Visualization: lectures 1-6 and labs 1-5, with simulators, quizzes and flashcards.">
   <meta name="color-scheme" content="light dark">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2316181d'/%3E%3Cpath d='M5 21h5l3-9 4 13 3-8h7' fill='none' stroke='%23ff8a3d' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%2316181d'/%3E%3Cg fill='%237a828f'%3E%3Crect x='7' y='22' width='5' height='11' rx='1.5'/%3E%3Crect x='15' y='16' width='5' height='17' rx='1.5'/%3E%3Crect x='23' y='19' width='5' height='14' rx='1.5'/%3E%3C/g%3E%3Crect x='31' y='11' width='5' height='22' rx='1.5' fill='%23ff8a3d'/%3E%3Cpolyline points='9.5,17 17.5,11 25.5,14 33.5,6' fill='none' stroke='%23eceef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/quiz.css">
+  <link rel="stylesheet" href="css/motion.css">
   <script>
     try { const t = localStorage.getItem('signal-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
   </script>
@@ -21,11 +23,21 @@
   <a class="skip" href="#view">Skip to content</a>
   <div class="app">
     <aside class="sidebar" id="sidebar" aria-label="Course navigation">
-      <a class="brand" href="#/">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32"><path d="M5 21h5l3-9 4 13 3-8h7"/></svg>
+      <a class="brand" href="#/" aria-label="Data Engineering &amp; Visualization: overview">
+        <span class="brand-mark" id="brandMark" aria-hidden="true">
+          <svg viewBox="0 0 40 40">
+            <g class="bm-grid"><line x1="5" x2="37" y1="14" y2="14"/><line x1="5" x2="37" y1="24" y2="24"/></g>
+            <rect class="bm-bar" style="--i:0" x="7" y="22" width="5" height="11" rx="1.5"/>
+            <rect class="bm-bar" style="--i:1" x="15" y="16" width="5" height="17" rx="1.5"/>
+            <rect class="bm-bar" style="--i:2" x="23" y="19" width="5" height="14" rx="1.5"/>
+            <rect class="bm-bar bm-hi" style="--i:3" x="31" y="11" width="5" height="22" rx="1.5"/>
+            <line class="bm-axis" x1="5" x2="37" y1="34" y2="34"/>
+            <polyline class="bm-trend" pathLength="100" points="9.5,17 17.5,11 25.5,14 33.5,6"/>
+            <circle class="bm-ring" cx="33.5" cy="6" r="2.6"/>
+            <circle class="bm-dot" cx="33.5" cy="6" r="2.6"/>
+          </svg>
         </span>
-        <span class="brand-text"><strong>Signal</strong><small>DE &amp; Viz midterm</small></span>
+        <span class="brand-text"><strong>Data Engineering</strong><strong>&amp; Visualization</strong></span>
       </a>
       <nav id="nav"></nav>
       <div class="side-progress" id="sideProgress"></div>
@@ -33,7 +45,7 @@
     <div class="scrim" id="scrim" hidden></div>
     <div class="main">
       <header class="topbar">
-        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open navigation"><i class="ph ph-list"></i></button>
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><i class="ph ph-list"></i></button>
         <div class="crumbs" id="crumbs"></div>
         <div class="top-actions">
           <button class="search-trigger" id="searchBtn" aria-label="Search terms">
