@@ -8,6 +8,15 @@
         "value": "geist",
         "createdAt": "2026-10-22T17:26:09.784Z",
         "reason": "agent decision: Geist + Geist Mono chosen deliberately per the design-taste-frontend skill the user asked for; the mono pairing carries all numeric readouts"
+      },
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-22T17:51:38.554Z",
+        "reason": "agent decision: no auto-scrolling content exists; the only infinite translateX animation is the loading-skeleton shimmer on not-yet-mounted simulators, a standard loading state that stops once they mount"
       }
     ]
   }
